@@ -6,10 +6,10 @@ document.getElementById("generate-btn").addEventListener("click", async () => {
   const reader = new FileReader();
   reader.readAsDataURL(file);
   reader.onload = async () => {
-    const prompt = "ulta realistic festive diwali scene. a young man stands confidently wearing stylish traditional clothes, holding a lit full chadi(sparkler) in his hand. the sparkler glows brightly, creating a beautiful golden ring of light around him as he waves it in the air. his outfit is vibrant and festive, with a shining designer kurta and pant. in the background, there are colorful diwali decoration, glowing diyas, fairy lights, and fireworks bursting in the night sky. the entire scene glows.";
+    const prompt = "ulta realistic festive diwali scene..."; // your template
 
     try {
-      const response = await fetch('/api/generate', {
+      const response = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt, image: reader.result })
@@ -17,11 +17,10 @@ document.getElementById("generate-btn").addEventListener("click", async () => {
 
       if (!response.ok) throw new Error("Failed to generate image");
 
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      document.getElementById("result-image").src = url;
+      const result = await response.json();
+      document.getElementById("result-image").src = `data:image/png;base64,${result.image_base64}`;
     } catch (err) {
-      alert(err.message);
+      alert(`❌ ${err.message}`);
     }
   };
 });

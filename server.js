@@ -2,56 +2,52 @@
 import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
-import fetch from "node-fetch";
-import FormData from "form-data";
+import { GoogleGenAI } from "@google/genai";
 
 const app = express();
-
-// Enable CORS
 app.use(cors());
-
-// Parse JSON bodies (for POST requests)
 app.use(bodyParser.json({ limit: "25mb" }));
-
-// Serve static frontend files from "public" folder
 app.use(express.static("public"));
 
-// Nano Banana API key from environment variable
-const NANO_API_KEY = process.env.NANO_API_KEY;
+// Gemini client
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-// POST endpoint for generating images
 app.post("/api/generate", async (req, res) => {
   try {
     const { prompt, image } = req.body;
     if (!prompt || !image) return res.status(400).json({ error: "Missing prompt or image" });
 
-    const base64Data = image.split(",")[1];
-    const buffer = Buffer.from(base64Data, "base64");
+    // Prepare prompt array for Gemini
+    const promptArray = [
+      { text: prompt },
+      { inlineData: { mimeType: "image/png", data: image.split(",")[1] } },
+    ];
 
-    const formData = new FormData();
-    formData.append("prompt", prompt);
-    formData.append("image", buffer, "input.png");
-
-    const response = await fetch("https://api.nanobanana.ai/v1/image/generate", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${NANO_API_KEY}` },
-      body: formData
+    // Generate image
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash-image",
+      contents: promptArray,
     });
 
-    if (!response.ok) {
-      const text = await response.text();
-      return res.status(500).json({ error: text });
+    // Extract the image from response
+    const parts = response.candidates[0].content.parts;
+    let imageBase64 = null;
+    for (const part of parts) {
+      if (part.inlineData?.data) {
+        imageBase64 = part.inlineData.data;
+        break;
+      }
     }
 
-    const imgBuffer = await response.arrayBuffer();
-    res.setHeader("Content-Type", "image/png");
-    res.send(Buffer.from(imgBuffer));
+    if (!imageBase64) return res.status(500).json({ error: "No image returned" });
+
+    res.json({ image_base64: imageBase64 });
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message });
   }
 });
 
-// Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
