@@ -6,12 +6,20 @@ import fetch from "node-fetch";
 import FormData from "form-data";
 
 const app = express();
+
+// Enable CORS
 app.use(cors());
+
+// Parse JSON bodies (for POST requests)
 app.use(bodyParser.json({ limit: "25mb" }));
+
+// Serve static frontend files from "public" folder
 app.use(express.static("public"));
 
+// Nano Banana API key from environment variable
 const NANO_API_KEY = process.env.NANO_API_KEY;
 
+// POST endpoint for generating images
 app.post("/api/generate", async (req, res) => {
   try {
     const { prompt, image } = req.body;
@@ -44,5 +52,6 @@ app.post("/api/generate", async (req, res) => {
   }
 });
 
+// Start server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`✅ Server running at http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
