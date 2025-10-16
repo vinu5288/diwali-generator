@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Diwali Poster Generator</title>
+  <style>
+    :root{
+      --bg:#fff7ef; --card:#ffffff; --accent:#f59e0b; --muted:#6b7280;
+      --radius:14px; --shadow: 0 6px 18px rgba(15,23,42,0.08);
+    }
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,'Helvetica Neue',Arial}
+    body{display:flex;align-items:center;justify-content:center;padding:18px;background:linear-gradient(180deg,#fffaf0 0%, #fff7ef 100%)}
+    .app{width:100%;max-width:920px;background:var(--card);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
+    header{padding:18px 20px;border-bottom:1px solid rgba(0,0,0,0.03);display:flex;gap:12px;align-items:center}
+    header h1{font-size:18px;margin:0}
+    .main{display:flex;flex-direction:row;gap:18px;padding:18px}
+    .controls{flex:0 0 360px;min-width:260px}
+    .preview{flex:1;display:flex;align-items:center;justify-content:center}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.8));padding:14px;border-radius:12px}
+    label{display:block;font-size:13px;color:var(--muted);margin-bottom:8px}
+    select,input[type=file],textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #e6e6e6;font-size:14px}
+    .template-list{display:flex;gap:8px;flex-wrap:wrap}
+    .template-item{padding:8px 10px;border-radius:10px;border:1px dashed #eee;cursor:pointer;background:#fff}
+    .template-item.selected{border-style:solid;border-color:var(--accent);box-shadow:0 6px 20px rgba(245,158,11,0.08)}
+    .btn{display:inline-flex;gap:8px;align-items:center;justify-content:center;padding:10px 14px;border-radius:10px;border:0;background:var(--accent);color:#fff;font-weight:600;cursor:pointer}
+    .btn.secondary{background:#fff;border:1px solid #e6e6e6;color:#111}
+    .controls .row{margin-bottom:12px}
+    .preview-box{width:320px;max-width:100%;aspect-ratio:9/16;border-radius:12px;background:linear-gradient(180deg,#111 0%, #222 100%);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+    .preview-box img{width:100%;height:100%;object-fit:cover;display:block}
+    .placeholder{color:#fff;text-align:center;padding:20px}
+    .actions{display:flex;gap:10px;margin-top:8px}
+    .status{font-size:13px;color:var(--muted);margin-top:8px}
+    footer{padding:12px 18px;border-top:1px solid rgba(0,0,0,0.03);display:flex;justify-content:space-between;align-items:center}
+    @media (max-width:880px){.main{flex-direction:column}.controls{width:100%}.preview{order:-1}}
+  </style>
+</head>
+<body>
+  <div class="app" role="application">
+    <header>
+      <h1>Diwali Poster Generator</h1>
+      <small style="color:var(--muted)">Upload your photo → apply template → generate</small>
+    </header>
+
+    <div class="main">
+      <div class="controls">
+        <div class="card">
+          <div class="row">
+            <label for="template">Choose template</label>
+            <div class="template-list" id="templateList">
+              <!-- Templates rendered by JS -->
+            </div>
+          </div>
+
+          <div class="row">
+            <label for="imageInput">Upload your image (portrait recommended)</label>
+            <input id="imageInput" type="file" accept="image/*" />
+          </div>
+
+          <div class="row">
+            <label for="promptArea">Prompt (editable)</label>
+            <textarea id="promptArea" rows="4"></textarea>
+          </div>
+
+          <div class="row" style="display:flex;gap:8px;align-items:center;">
+            <button id="generateBtn" class="btn">Generate</button>
+            <button id="clearBtn" class="btn secondary">Clear</button>
+          </div>
+
+          <div class="status" id="status">Ready</div>
+        </div>
+      </div>
+
+      <div class="preview">
+        <div style="width:100%;max-width:420px">
+          <div class="preview-box" id="previewBox">
+            <div class="placeholder" id="placeholder">No generated image yet.<br/>Preview will appear here.</div>
+            <img id="resultImg" alt="Generated result" style="display:none" />
+          </div>
+
+          <div class="actions" style="margin-top:10px">
+            <a id="downloadBtn" class="btn secondary" download="diwali_poster.png" style="pointer-events:none;opacity:0.5">Download</a>
+            <button id="shareBtn" class="btn secondary" style="pointer-events:none;opacity:0.5">Share</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <small style="color:var(--muted)">Note: This frontend expects a backend endpoint <code>/api/generate</code> that accepts JSON with keys <code>prompt</code> and <code>image</code> (base64). See comments in JS for integration details.</small>
+      <div style="color:var(--muted)">Made for mobile-first — fits most browsers</div>
+    </footer>
+  </div>
+
+  <script>
+    // === Templates: you can add more ===
+    const TEMPLATES = [
+      {
+        id: 'diwali1',
+        name: 'Ultra-realistic Diwali (default)',
+        prompt: `ulta realistic festive diwali scene. a young man stands confidently waring stylish traditional clothes, holding a lit full chadi(sparkler) in his hand. the sparkler glows brightly. creating a beautiful golden ring of light around him as he waves it in the air. his outfit is vibrant and festive, with a shining designer kurta and pant. in the background, there are colorful diwali decoration, glowing diyas, fairy lights, and fireworks bursting in the night sky. the entrie scene glows.`
+      }
+    ];
+
+    // === Small helpers ===
+    const $ = id => document.getElementById(id);
+
+    const templateList = $('templateList');
+    const promptArea = $('promptArea');
+    const imageInput = $('imageInput');
+    const generateBtn = $('generateBtn');
+    const clearBtn = $('clearBtn');
+    const statusEl = $('status');
+    const resultImg = $('resultImg');
+    const placeholder = $('placeholder');
+    const downloadBtn = $('downloadBtn');
+    const shareBtn = $('shareBtn');
+
+    let selectedTemplate = TEMPLATES[0];
+    let uploadedBase64 = null;
+    let generatedBlobUrl = null;
+
+    function renderTemplates(){
+      templateList.innerHTML = '';
+      TEMPLATES.forEach(t => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'template-item' + (t.id === selectedTemplate.id ? ' selected' : '');
+        btn.textContent = t.name;
+        btn.onclick = () => { selectedTemplate = t; updateUI(); };
+        templateList.appendChild(btn);
+      });
+    }
+
+    function updateUI(){
+      renderTemplates();
+      promptArea.value = selectedTemplate.prompt;
+    }
+
+    imageInput.addEventListener('change', async (e) => {
+      const file = e.target.files && e.target.files[0];
+      if(!file) return;
+      if(!file.type.startsWith('image/')) return alert('Please upload an image file');
+      statusEl.textContent = 'Reading image...';
+      uploadedBase64 = await toBase64(file);
+      statusEl.textContent = 'Image ready';
+    });
+
+    clearBtn.addEventListener('click', ()=>{
+      imageInput.value = '';
+      uploadedBase64 = null;
+      promptArea.value = selectedTemplate.prompt;
+      resetPreview();
+      statusEl.textContent = 'Cleared';
+    });
+
+    generateBtn.addEventListener('click', async ()=>{
+      // use the prompt from textarea (user can edit)
+      const prompt = promptArea.value.trim();
+      if(!prompt) return alert('Prompt is empty');
+      if(!uploadedBase64) return alert('Please upload an image to be used as the poster');
+
+      // Prepare payload
+      const payload = {
+        prompt,
+        image: uploadedBase64 // base64 data url string (data:image/..;base64,...)
+      };
+
+      // NOTE: Replace /api/generate with your backend route that talks to Nano Banana
+      // Backend should accept JSON { prompt, image } and return a binary image (png/jpeg)
+      const endpoint = '/api/generate';
+
+      setStatus('Sending generation request...');
+      setButtonsDisabled(true);
+
+      try{
+        const resp = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if(!resp.ok){
+          const txt = await resp.text();
+          throw new Error(`Server error: ${resp.status} ${txt}`);
+        }
+
+        // Expect binary image
+        const blob = await resp.blob();
+        showResult(blob);
+        setStatus('Generation complete');
+      }catch(err){
+        console.error(err);
+        setStatus('Error: ' + (err.message || err));
+        alert('Failed to generate image. See console for details.');
+      }finally{
+        setButtonsDisabled(false);
+      }
+    });
+
+    function showResult(blob){
+      if(generatedBlobUrl) URL.revokeObjectURL(generatedBlobUrl);
+      generatedBlobUrl = URL.createObjectURL(blob);
+      resultImg.src = generatedBlobUrl;
+      resultImg.style.display = 'block';
+      placeholder.style.display = 'none';
+
+      // setup download link
+      downloadBtn.href = generatedBlobUrl;
+      downloadBtn.style.pointerEvents = 'auto';
+      downloadBtn.style.opacity = 1;
+
+      // setup share
+      shareBtn.style.pointerEvents = 'auto';
+      shareBtn.style.opacity = 1;
+      shareBtn.onclick = async () => {
+        if(navigator.canShare && navigator.canShare({ files: [new File([blob], 'diwali_poster.png', {type: blob.type})] })){
+          try{
+            await navigator.share({ files: [new File([blob], 'diwali_poster.png', {type: blob.type})], title: 'Diwali Poster' });
+          }catch(e){ console.warn('Share canceled',e); }
+        }else{
+          alert('Share is not supported on this browser. You can download the image instead.');
+        }
+      };
+    }
+
+    function resetPreview(){
+      if(generatedBlobUrl) URL.revokeObjectURL(generatedBlobUrl);
+      generatedBlobUrl = null;
+      resultImg.src = '';
+      resultImg.style.display = 'none';
+      placeholder.style.display = 'block';
+      downloadBtn.href = 'javascript:void(0)';
+      downloadBtn.style.pointerEvents = 'none';
+      downloadBtn.style.opacity = 0.5;
+      shareBtn.style.pointerEvents = 'none';
+      shareBtn.style.opacity = 0.5;
+    }
+
+    function setStatus(s){ statusEl.textContent = s; }
+    function setButtonsDisabled(v){ generateBtn.disabled = v; generateBtn.style.opacity = v?0.6:1; }
+
+    function toBase64(file){
+      return new Promise((res,rej)=>{
+        const reader = new FileReader();
+        reader.onload = ()=> res(reader.result);
+        reader.onerror = rej;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // initialize
+    updateUI();
+    resetPreview();
+
+    // ===== Example backend notes for integrator =====
+    // 1) Your backend route /api/generate should accept POST JSON: { prompt: string, image: dataUrl }
+    // 2) The backend extracts the base64 image, forwards it to the Nano Banana image-edit/generation API
+    //    following Nano Banana's authentication and API shape. The backend should combine the user's
+    //    uploaded image as the 'template poster' or conditioning image and the prompt as the global prompt.
+    // 3) The backend returns the generated image binary with correct Content-Type (image/png or image/jpeg)
+    // 4) If Nano Banana supports multipart/form-data, your backend may choose to send the uploaded file
+    //    as a file instead of base64.
+    // 5) If you don't already have a backend, a simple Node/Express route using fetch and a small key
+    //    store will work. Do NOT place your Nano Banana api key in client-side JS.
+  </script>
+</body>
+</html>
