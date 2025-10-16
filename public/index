@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diwali Poster Generator</title>
+  <style>
+    body { font-family: Arial; text-align: center; padding: 2rem; background: #fff7e6; }
+    #result-image { margin-top: 1rem; max-width: 100%; }
+    input, button { margin-top: 1rem; padding: 0.5rem; font-size: 1rem; }
+  </style>
+</head>
+<body>
+  <h1>AI Diwali Poster Generator</h1>
+  <input type="file" id="image-input" accept="image/*"><br>
+  <button id="generate-btn">Generate Poster</button>
+  <div>
+    <img id="result-image" src="" alt="">
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
