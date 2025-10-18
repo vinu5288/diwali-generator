@@ -1,0 +1,154 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  background: #ffe6e6;
+  display: flex;
+  justify-content: center;
+}
+
+.container {
+  max-width: 480px;
+  width: 100%;
+  padding: 1rem;
+}
+
+header h1 {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: #fff;
+  text-shadow: 1px 1px 4px #ff6600;
+}
+
+.main-swap-card {
+  position: relative;
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+  margin-bottom: 1rem;
+}
+
+.main-image {
+  width: 100%;
+  display: block;
+}
+
+.thumbnail-overlay {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid #fff;
+}
+
+.thumbnail-overlay img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  margin-top: 8px;
+  gap: 10px;
+}
+
+.swap-arrow {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.swap-arrow img {
+  width: 60%;
+  height: 60%;
+  object-fit: contain;
+}
+
+.swap-arrow:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 10px rgba(0,0,0,0.3);
+}
+
+.template-carousel {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 1rem;
+}
+
+.template-item {
+  flex: 0 0 auto;
+  width: 90px;
+  text-align: center;
+  position: relative;
+}
+
+.template-item img {
+  width: 100%;
+  aspect-ratio: 9/16;
+  border-radius: 12px;
+}
+
+.template-item span {
+  display: block;
+  margin-top: 4px;
+  font-weight: bold;
+}
+
+.template-item.hot .badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: red;
+  color: white;
+  font-size: 0.7rem;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.confirm-popup {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.confirm-box {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.confirm-buttons button {
+  margin: 10px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  background: #ff6600;
+  color: #fff;
+  cursor: pointer;
+  font-size: 1rem;
+}

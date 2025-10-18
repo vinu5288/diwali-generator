@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload Test</title>
+</head>
+<body>
+  <h1>Upload Button Test</h1>
+  <div>
+    <button id="testBtn">Test Upload Button</button>
+    <input type="file" id="testInput" accept="image/*" style="display: none;">
+  </div>
+  <div id="output"></div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const testBtn = document.getElementById('testBtn');
+      const testInput = document.getElementById('testInput');
+      const output = document.getElementById('output');
+
+      testBtn.addEventListener('click', () => {
+        output.innerHTML = 'Button clicked! Triggering file input...<br>';
+        testInput.click();
+      });
+
+      testInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          output.innerHTML += `File selected: ${file.name}<br>`;
+          output.innerHTML += `File size: ${file.size} bytes<br>`;
+          output.innerHTML += `File type: ${file.type}<br>`;
+        }
+      });
+    });
+  </script>
+</body>
+</html>

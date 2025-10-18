@@ -1,4 +1,3 @@
-// server.js
 import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
@@ -17,20 +16,17 @@ app.post("/api/generate", async (req, res) => {
     const { prompt, image } = req.body;
     if (!prompt || !image) return res.status(400).json({ error: "Missing prompt or image" });
 
-    // Prepare prompt array for Gemini
     const promptArray = [
       { text: prompt },
       { inlineData: { mimeType: "image/png", data: image.split(",")[1] } },
     ];
 
-    // Generate image
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash-image",
       contents: promptArray,
     });
 
-    // Extract the image from response
-    const parts = response.candidates[0].content.parts;
+    const parts = response.candidates[0]?.content?.parts || [];
     let imageBase64 = null;
     for (const part of parts) {
       if (part.inlineData?.data) {
@@ -39,7 +35,7 @@ app.post("/api/generate", async (req, res) => {
       }
     }
 
-    if (!imageBase64) return res.status(500).json({ error: "No image returned" });
+    if (!imageBase64) return res.status(500).json({ error: "No image returned from Gemini API" });
 
     res.json({ image_base64: imageBase64 });
 

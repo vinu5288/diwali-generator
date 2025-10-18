@@ -3,20 +3,80 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Diwali Poster Generator</title>
-  <style>
-    body { font-family: Arial; text-align: center; padding: 2rem; background: #fff7e6; }
-    #result-image { margin-top: 1rem; max-width: 100%; }
-    input, button { margin-top: 1rem; padding: 0.5rem; font-size: 1rem; }
-  </style>
+  <title>Face Swap</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>AI Diwali Poster Generator</h1>
-  <input type="file" id="image-input" accept="image/*"><br>
-  <button id="generate-btn">Generate Poster</button>
-  <div>
-    <img id="result-image" src="" alt="">
+  <div class="container">
+    <header>
+      <h1>Face Swap</h1>
+    </header>
+
+    <div class="main-swap-card">
+      <img src="thumbnails/diwali1.jpg" alt="Main Image" class="main-image">
+      <div class="thumbnail-overlay">
+        <img src="thumbnails/diwali1.jpg" alt="Reference Image">
+      </div>
+
+      <div class="action-buttons">
+        <button id="upload-btn" class="swap-arrow">
+          <img src="thumbnails/upload.png" alt="Upload">
+        </button>
+        <button id="download-btn" class="swap-arrow" style="display:none;">
+          <img src="thumbnails/download.png" alt="Download">
+        </button>
+        <button id="whatsapp-btn" class="swap-arrow" style="display:none;">
+          <img src="thumbnails/whatsapp.png" alt="WhatsApp">
+        </button>
+        <button id="twitter-btn" class="swap-arrow" style="display:none;">
+          <img src="thumbnails/twitter.png" alt="Twitter">
+        </button>
+        <button id="create-another-btn" class="swap-arrow" style="display:none;">
+          <img src="thumbnails/create.png" alt="Create Another">
+        </button>
+        <input type="file" id="image-input" style="display:none;">
+      </div>
+    </div>
+
+    <div class="template-carousel">
+      <div class="template-item" data-template="C-01">
+        <img src="thumbnails/diwali1.jpg" alt="C-01">
+        <span>C-01</span>
+      </div>
+      <div class="template-item" data-template="C-02">
+        <img src="thumbnails/diwali2.jpg" alt="C-02">
+        <span>C-02</span>
+      </div>
+      <div class="template-item hot" data-template="C-03">
+        <img src="thumbnails/diwali3.jpg" alt="C-03">
+        <span>C-03</span>
+        <span class="badge">HOT</span>
+      </div>
+      <div class="template-item" data-template="C-04">
+        <img src="thumbnails/diwali4.jpg" alt="C-04">
+        <span>C-04</span>
+      </div>
+    </div>
   </div>
+
+  <!-- Confirmation popup -->
+  <div id="confirm-popup" class="confirm-popup">
+    <div class="confirm-box">
+      <p>Do you want to generate image?</p>
+      <div class="confirm-buttons">
+        <button id="confirm-yes">Yes</button>
+        <button id="confirm-no">No</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Generating image popup -->
+  <div id="generating-popup" class="confirm-popup">
+    <div class="confirm-box">
+      <p>Generating image...</p>
+    </div>
+  </div>
+
   <script src="script.js"></script>
 </body>
 </html>
