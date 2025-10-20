@@ -11,6 +11,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const confirmPopup = document.getElementById("confirm-popup");
   const confirmYes = document.getElementById("confirm-yes");
   const confirmNo = document.getElementById("confirm-no");
+  const interstitialPopup = document.getElementById("interstitial-popup");
+  const interstitialClose = document.getElementById("interstitial-close");
 
   let uploadedImage = null;
   let selectedPrompt = "";
@@ -46,6 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
   confirmYes.addEventListener("click", async () => {
     confirmPopup.style.display = "none";
     generatingPopup.style.display = "flex";
+
     await new Promise(resolve => requestAnimationFrame(resolve));
 
     try {
@@ -55,6 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
         body: JSON.stringify({ prompt: selectedPrompt, image: uploadedImage })
       });
       const data = await res.json();
+
       if (data.error || !data.image_base64) {
         alert("Failed to generate image: " + (data.error || "No image returned"));
       } else {
@@ -63,6 +67,9 @@ document.addEventListener("DOMContentLoaded", () => {
         whatsappBtn.style.display = "inline-flex";
         twitterBtn.style.display = "inline-flex";
         createAnotherBtn.style.display = "inline-flex";
+
+        // Show interstitial ad
+        interstitialPopup.style.display = "flex";
       }
     } catch (err) {
       alert("Error generating image: " + err.message);
@@ -86,11 +93,18 @@ document.addEventListener("DOMContentLoaded", () => {
     whatsappBtn.style.display = "none";
     twitterBtn.style.display = "none";
     createAnotherBtn.style.display = "none";
+
+    // Show interstitial ad
+    interstitialPopup.style.display = "flex";
   });
 
   whatsappBtn.addEventListener("click", () => {
     if (!mainImage.src) return;
     const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent("Check out my Diwali face swap image! ")}`;
     window.open(whatsappUrl, "_blank");
+  });
+
+  interstitialClose.addEventListener("click", () => {
+    interstitialPopup.style.display = "none";
   });
 });

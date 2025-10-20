@@ -36,6 +36,16 @@
         </button>
         <input type="file" id="image-input" style="display:none;">
       </div>
+
+      <!-- Banner Ad -->
+      <div id="banner-ad" class="banner-ad">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-6414916104528991"
+             data-ad-slot="1234567890"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+      </div>
     </div>
 
     <div class="template-carousel">
@@ -77,6 +87,22 @@
     </div>
   </div>
 
+  <!-- Interstitial Ad Popup -->
+  <div id="interstitial-popup" class="confirm-popup">
+    <div class="confirm-box">
+      <p>Sponsored Ad</p>
+      <div id="interstitial-content">
+        <img src="thumbnails/sample-ad.png" alt="Ad" style="width:100%;border-radius:12px;">
+      </div>
+      <button id="interstitial-close">Close</button>
+    </div>
+  </div>
+
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6414916104528991"
+     crossorigin="anonymous"></script>
+  <script>
+    (adsbygoogle = window.adsbygoogle || []).push({});
+  </script>
   <script src="script.js"></script>
 </body>
 </html>
